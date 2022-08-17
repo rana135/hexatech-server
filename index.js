@@ -16,6 +16,8 @@ async function run() {
     try {
         // Rana vai:-
         const ProductCollection = client.db("db-hexatech").collection("service");
+        const FormCollection = client.db("db-hexatech").collection("formDataInfo");
+        const BusinessCollection = client.db("db-hexatech").collection("businessCard");
 
         // Emran vai:-
         const PurchaseCollection = client.db("db-hexatech").collection("purchase");
@@ -27,7 +29,7 @@ async function run() {
 
 
 
-
+        // Rana vai:-
         // get All product:-
         app.get('/products', async (req, res) => {
             const query = {}
@@ -58,6 +60,30 @@ async function run() {
                 $set: data,
             }
             const result = await ProductCollection.updateOne(filter, updateDoc, options)
+            res.send(result)
+        })
+
+        // Dynamic Form:-
+        // get method:-
+        app.get('/formDynamic', async (req, res) => {
+            const query = {}
+            const cursor = FormCollection.find(query)
+            const result = await cursor.toArray()
+            res.send(result)
+        })
+        // post Products:-
+        app.post('/formDynamic', async (req, res) => {
+            const newService = req.body
+            const result = await FormCollection.insertOne(newService)
+            res.send(result)
+        })
+
+        // BusinessCard:-
+        // Get Method:-
+        app.get('/businessCard', async (req, res) => {
+            const query = {}
+            const cursor = FormCollection.find(query)
+            const result = await cursor.toArray()
             res.send(result)
         })
 
