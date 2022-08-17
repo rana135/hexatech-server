@@ -82,7 +82,7 @@ async function run() {
         // Get Method:-
         app.get('/businessCard', async (req, res) => {
             const query = {}
-            const cursor = FormCollection.find(query)
+            const cursor = BusinessCollection.find(query)
             const result = await cursor.toArray()
             res.send(result)
         })
