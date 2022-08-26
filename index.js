@@ -142,10 +142,10 @@ async function run() {
         })
         //Done Total CRUD
 
-        /* http://localhost:5000/purchase       [post] */
-        /* http://localhost:5000/purchase       [get] */
-        /* http://localhost:5000/purchase/id    [get] */
-        /* http://localhost:5000/purchase/id    [delete] */
+        /* https://hexatech-server.herokuapp.com/purchase       [post] */
+        /* https://hexatech-server.herokuapp.com/purchase       [get] */
+        /* https://hexatech-server.herokuapp.com/purchase/id    [get] */
+        /* https://hexatech-server.herokuapp.com/purchase/id    [delete] */
 
         app.post('/purchase', async (req, res) => {
             const addpurchase = req.body
@@ -187,7 +187,17 @@ async function run() {
             res.send(result)
         })
 
-
+        app.put('/purchase/:id', async (req, res) => {
+            const id = req.params.id
+            const data = req.body
+            const filter = { _id: ObjectId(id) }
+            const options = { upsert: true };
+            const updateDoc = {
+                $set: data,
+            }
+            const result = await Allpurchase.updateOne(filter, updateDoc, options)
+            res.send(result)
+        })
         //Expense
         app.post('/expense', async (req, res) => {
             const addExpense = req.body
@@ -218,7 +228,7 @@ async function run() {
             const result = await AdminTask.insertOne(addExpense);
             res.send({ result: 'Added expense Successfully' })
         })
-        
+
         // Query Email
 
         app.get('/admin-task', async (req, res) => {
@@ -343,7 +353,6 @@ async function run() {
         app.get('/admin/:email', async (req, res) => {
             const email = req.params.email;
             const user = await userlogin.findOne({ email: email });
-            console.log(user);
             const isAdmin = user.role === 'admin';
             res.send({ admin: isAdmin })
         })
@@ -392,5 +401,3 @@ run().catch(console.dir);
 app.listen(port, () => {
     console.log(`Show Here ${port}`)
 })
-
-
