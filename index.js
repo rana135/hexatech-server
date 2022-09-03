@@ -1,3 +1,4 @@
+
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const express = require('express')
 const cors = require('cors') //support diffrent port
@@ -12,8 +13,6 @@ app.get('/', (req, res) => {
     res.send('Welcome To hexa-tech')
 
 })
-
-//https://git.heroku.com/safe-inlet-78940.git
 
 function verifyJWT(req, res, next) {
     const authHeader = req.headers.authorization;
@@ -30,6 +29,8 @@ function verifyJWT(req, res, next) {
     });
 }
 
+
+
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.hv3djnv.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 //console.log(uri);
@@ -39,21 +40,26 @@ async function run() {
         const allTask = client.db("taskDB").collection("taskcollection");
         const Allpurchase = client.db("purchaseDB").collection("purchasecollection");
         const userlogin = client.db("userLoginDB").collection("userLoginCollection");
-        const userprifile = client.db("prifileDB").collection("prifileCollection");
+        const userProfile = client.db("profileDB").collection("profileCollection");
         const AllExpense = client.db("ExpenseDB").collection("expenseCollection");
         const AdminTask = client.db("AdminTaskDB").collection("AdminTaskCollection");
         const Invoice = client.db("InvoiceDB").collection("InvoiceCollection");
         const SaleOrder = client.db("SaleOrderDB").collection("SaleOrderCollection");
         const ProductCollection = client.db("db-hexatech").collection("service");
-
-        /* const reviews = client.db("reviewDB").collection("reviewcollection");
+        const reviews = client.db("reviewDB").collection("reviewcollection")
+        const UserTrack = client.db("UserTrackDB").collection("UserTrackcollection")
+        const Notice = client.db("NoticeDB").collection("Noticecollection")
+        const myProfile = client.db("myProfileDB").collection("myProfilecollection")
+        /* userTrack */
+        /* ;
         const userlogin = client.db("userLoginDB").collection("userLoginCollection");
         const product = client.db("productDB").collection("productCollection");
         const orders = client.db("orderDB").collection("orderCollection"); */
 
         const verifyAdmin = async (req, res, next) => {
             const requester = req.decoded.email;
-            const requesterAccount = await userprifile.findOne({ email: requester });
+            console.log(requester)
+            const requesterAccount = await userProfile.findOne({ email: requester });
             if (requesterAccount.role === 'admin') {
                 next();
             }
@@ -61,6 +67,7 @@ async function run() {
                 res.status(403).send({ message: 'forbidden' });
             }
         }
+
 
         // Rana vai:-
         // get All product:-
@@ -219,9 +226,9 @@ async function run() {
             res.send(result)
         })
 
-
-
         /* admin-task */
+
+
 
         app.post('/admin-task', async (req, res) => {
             const addExpense = req.body
@@ -231,7 +238,7 @@ async function run() {
 
         // Query Email
 
-        app.get('/admin-task', async (req, res) => {
+        app.get('/admin-task/:email', async (req, res) => {
             const email = req.query.email;
             const query = { email: email };
             const result = await AdminTask.findOne(query)
@@ -277,49 +284,106 @@ async function run() {
             res.send(result)
         })
 
-
-        //Manage-all-order
-        app.put('/order-status/:id', async (req, res) => {
-            const id = req.params.id;
-            const filter = { _id: ObjectId(id) };
-            const updateDoc = {
-                $set: { status: 'Paid' },
-            };
-            const result = await orders.updateOne(filter, updateDoc);
-            res.send(result);
+        // post userTrack | user get service:-
+        /* app.put('/userTrack', async (req, res) => {
+            const userGet = req.body
+            const result = await UserTrack.insertOne(userGet)
+            res.send(result)
+        }) */
+        app.get('/userTrack', async (req, res) => {
+            const query = {}
+            const cursor = UserTrack.find(query)
+            const result = await cursor.toArray()
+            res.send(result)
         })
-        //manage-all-orders
+        app.get('/userTrack', async (req, res) => {
+            const email = req.query.email;
+            const query = { email: email };
+            const result = await UserTrack.findOne(query)
+            return res.send(result);
+        })
+
+        app.delete('/userTrack/:id', async (req, res) => {
+            const id = req.params.id
+            const query = { _id: ObjectId(id) }
+            const result = await UserTrack.deleteOne(query)
+            res.send(result)
+        })
+        app.post('/userTrack', async (req, res) => {
+            const submit = req.body;
+            const query = {
+                name: submit.name,
+                email: submit.email,
+                img: submit.img,
+                feature: submit.feature,
+            }
+            const exists = await UserTrack.findOne(query);
+            if (exists) {
+                return res.send({ success: false, submit: exists })
+            }
+            const result = await UserTrack.insertOne(submit);
+            return res.send({ success: true, result });
+        })
 
 
 
 
-        //Home Review Get
-        app.get('/review-get', async (req, res) => {
+
+
+
+        //Review Get
+        app.get('/review', async (req, res) => {
             const query = {}
             const cursor = reviews.find(query)
             const result = await cursor.toArray()
             res.send(result)
         })
+        app.post('/review', async (req, res) => {
+            const review = req.body
+            const result = await reviews.insertOne(review);
+            res.send({ result: 'Added review Successfully' })
+        })
 
 
         //My-Profile get
-        app.get('/profile-get', async (req, res) => {
+        app.get('/profile/:email', async (req, res) => {
             const email = req.query.email;
             const query = { email: email };
-            const result = await userprifile.findOne(query)
+            const result = await myProfile.findOne(query)
             return res.send(result);
         });
 
-        app.get('/review-get', async (req, res) => {
+        /* app.get('/profile', async (req, res) => {
             const query = {}
-            const cursor = userprifile.find(query)
+            const cursor = myProfile.find(query)
             const result = await cursor.toArray()
             res.send(result)
-        })
-        app.post('/profile-post', async (req, res) => {
+        }) */
+
+        app.post('/profile', async (req, res) => {
             const profile = req.body
-            const result = await userprifile.insertOne(profile);
+            const result = await myProfile.insertOne(profile);
             res.send({ result: 'Added profile Successfully' })
+        })
+
+        app.post('/profile', async (req, res) => {
+            const profile = req.body;
+            const query = {
+                email: profile.email,
+                img: profile.photoURL,
+                fname: profile.fname,
+                address: profile.address,
+                zip: profile.zip,
+                country: profile.country,
+                contact: profile.contact,
+                link: profile.link,
+            }
+            const exists = await myProfile.findOne(query);
+            if (exists) {
+                return res.send({ success: false, submit: exists })
+            }
+            const result = await myProfile.insertOne(submit);
+            return res.send({ success: true, result });
         })
         //User 
         /* app.post('/profile-post', async (req, res) => {
@@ -334,16 +398,33 @@ async function run() {
                 contact: submit.contact,
                 link: submit.link
             }
-            const exists = await userprifile.findOne(query);
+            const exists = await userProfile.findOne(query);
             if (exists) {
                 return res.send({ success: false, submit: exists })
             }
-            const result = await userprifile.insertOne(submit);
+            const result = await userProfile.insertOne(submit);
             return res.send({ success: true, result });
         }) */
 
+        // Notice
 
+        app.post('/notice', async (req, res) => {
+            const addNotice = req.body
+            const result = await Notice.insertOne(addNotice);
+            res.send({ result: 'Added Notice Successfully' })
+        })
 
+        app.get('/notice', async (req, res) => {
+            const notice = await Notice.find().toArray();
+            res.send(notice);
+        });
+
+        app.delete('/notice/:id', async (req, res) => {
+            const id = req.params.id
+            const query = { _id: ObjectId(id) }
+            const result = await Notice.deleteOne(query)
+            res.send(result)
+        })
 
         app.get('/user', async (req, res) => {
             const users = await userlogin.find().toArray();
@@ -358,7 +439,7 @@ async function run() {
         })
 
         //make admin
-        app.put('/user/admin/:email', verifyJWT, async (req, res) => {
+        /* app.put('/user/admin/:email', verifyAdmin, async (req, res) => {
             const email = req.params.email;
             const filter = { email: email };
             const updateDoc = {
@@ -366,7 +447,7 @@ async function run() {
             };
             const result = await userlogin.updateOne(filter, updateDoc);
             res.send(result);
-        })
+        }) */
         app.put('/user/modarator/:email', verifyJWT, async (req, res) => {
             const email = req.params.email;
             const filter = { email: email };
