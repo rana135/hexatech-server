@@ -36,7 +36,7 @@ const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology:
 //console.log(uri);
 async function run() {
     try {
-        await client.connect()
+         client.connect()
         const allTask = client.db("taskDB").collection("taskcollection");
         const Allpurchase = client.db("purchaseDB").collection("purchasecollection");
         const userlogin = client.db("userLoginDB").collection("userLoginCollection");
