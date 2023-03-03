@@ -8,7 +8,7 @@ This is project design like manufacturer or factory site using react app[Live-Si
 * use vercel  
 * use all kind of api
 
-Open [live-site](https://manufacturer-a7f2a.web.app/).
+Open [live-site](https://hexatech-server.vercel.app/).
 
 Open [Github Front-End Site](https://github.com/Cihsan/hexa-tech) to view it in your browser.
 
