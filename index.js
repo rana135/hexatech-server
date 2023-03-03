@@ -147,12 +147,6 @@ async function run() {
             const result = await allTask.updateOne(filter, updateDoc, options)
             res.send(result)
         })
-        //Done Total CRUD
-
-        /* https://hexatech-server.herokuapp.com/purchase       [post] */
-        /* https://hexatech-server.herokuapp.com/purchase       [get] */
-        /* https://hexatech-server.herokuapp.com/purchase/id    [get] */
-        /* https://hexatech-server.herokuapp.com/purchase/id    [delete] */
 
         app.post('/purchase', async (req, res) => {
             const addpurchase = req.body
